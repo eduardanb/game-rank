@@ -8,7 +8,7 @@ import br.com.gamerank.structures.implementations.tree.AVLTree;
 
 public class RankingService {
 
-    private static final int JOGADORES_POR_PARTIDA = 2;
+    private static final int CAPACIDADE_FILA = 100;
 
     private HashTableChaining<Integer, Player> jogadores;
     private QueueWithStacks<Player> fila;
@@ -17,7 +17,7 @@ public class RankingService {
 
     public RankingService() {
         jogadores = new HashTableChaining<>(100);
-        fila = new QueueWithStacks<>(JOGADORES_POR_PARTIDA);
+        fila = new QueueWithStacks<>(CAPACIDADE_FILA);
         heap = new MaxHeap<>(100);
         avl = new AVLTree<>();
     }
@@ -92,6 +92,10 @@ public class RankingService {
         jogadores.remove(id);
         System.out.println("          -> Removido da Hash Table!");
 
+        System.out.println("\n[PASSO 2.1] Removendo da fila de espera (se estiver)...");
+        removerDaFilaPorId(id);
+        System.out.println("          -> Fila atualizada!");
+
         System.out.println("\n[PASSO 3] Removendo da AVL Tree...");
         System.out.println("          -> AVL Tree: remove(" + p.getNome() + ", pts=" + p.getPontuacao() + ")");
         avl.remove(p);
@@ -122,8 +126,7 @@ public class RankingService {
 
         System.out.println("          -> Jogador \"" + p.getNome() + "\" encontrado!");
 
-        System.out.println("\n[PASSO 2] Verificando se a fila ja esta cheia...");
-        System.out.println("          -> Limite da fila: " + JOGADORES_POR_PARTIDA + " jogador(es)");
+        System.out.println("\n[PASSO 2] Verificando se a fila atingiu o limite tecnico...");
 
         if (fila.isFull()) {
             System.out.println("          -> Fila cheia! Operacao cancelada.");
@@ -151,42 +154,31 @@ public class RankingService {
     }
 
     public void iniciarPartida() {
-        System.out.println("\n[PASSO 1] Verificando se a fila esta completa...");
+        System.out.println("\n[PASSO 1] Verificando se ha jogadores na fila...");
 
-        if (!fila.isFull()) {
-            System.out.println("          -> A partida so pode iniciar com " + JOGADORES_POR_PARTIDA + " jogadores na fila.");
+        limparFilaDeJogadoresRemovidos();
+
+        if (fila.isEmpty()) {
+            System.out.println("          -> Fila vazia! Operacao cancelada.");
             return;
         }
 
-        System.out.println("          -> Fila cheia. Iniciando partida...");
+        String competidoresDaRodada = descreverFilaAtual();
 
-        System.out.println("\n[PASSO 2] Retirando primeiro jogador da fila...");
-        System.out.println("          -> Fila: dequeue()");
-        System.out.println("          -> stackSaida vazia? Transferindo stackEntrada -> stackSaida...");
-        Player p1 = fila.dequeue();
-        System.out.println("          -> Jogador 1: \"" + p1.getNome() + "\" retirado!");
+        System.out.println("          -> Jogadores na fila: " + fila.size());
+        System.out.println("          -> Iniciando sorteio da partida...");
 
-        System.out.println("\n[PASSO 3] Retirando segundo jogador da fila...");
-        System.out.println("          -> Fila: dequeue()");
-        Player p2 = fila.dequeue();
+        System.out.println("\n[PASSO 2] Sorteando 1 jogador dentre todos da fila...");
+        Player vencedor = sortearJogadorDaFila();
 
-        if (p2 == null) {
-            System.out.println("          -> Erro interno: fila inconsistente. Devolvendo jogador...");
-            fila.enqueue(p1);
-            System.out.println("          -> \"" + p1.getNome() + "\" devolvido para a fila.");
+        if (vencedor == null) {
+            System.out.println("          -> Erro interno ao sortear jogador da fila.");
             return;
         }
-
-        System.out.println("          -> Jogador 2: \"" + p2.getNome() + "\" retirado!");
-
-        System.out.println("\n[PASSO 4] Sorteando vencedor entre os jogadores da partida...");
-        System.out.println("          -> Regra: a cada partida, 1 dos 2 jogadores da fila recebe +10 pontos.");
-
-        Player vencedor = (Math.random() < 0.5) ? p1 : p2;
 
         System.out.println("          -> Jogador sorteado para pontuar: \"" + vencedor.getNome() + "\"");
 
-        System.out.println("\n[PASSO 5] Atualizando pontuacao do vencedor...");
+        System.out.println("\n[PASSO 3] Atualizando pontuacao do vencedor...");
         System.out.println("          -> AVL Tree: remove(" + vencedor.getNome() + ", pts=" + vencedor.getPontuacao() + ")");
         avl.remove(vencedor);
         System.out.println("          -> Pontuacao anterior: " + vencedor.getPontuacao() + " pts");
@@ -196,15 +188,22 @@ public class RankingService {
         avl.insert(vencedor);
         System.out.println("          -> Arvore rebalanceada!");
 
-        System.out.println("\n[PASSO 6] Reconstruindo a MaxHeap...");
+        System.out.println("\n[PASSO 4] Reconstruindo a MaxHeap...");
         System.out.println("          -> Pontuacao alterada, heap precisa ser atualizada");
         reconstruirHeap();
-        System.out.println("          -> Heap reconstruida! Top atual: \""
-                + heap.peek().getNome() + "\" com " + heap.peek().getPontuacao() + " pts");
+        Player topAtual = heap.peek();
+        if (topAtual == null) {
+            System.out.println("          -> Heap reconstruida! Sem jogadores cadastrados no ranking.");
+        } else {
+            System.out.println("          -> Heap reconstruida! Top atual: \""
+                    + topAtual.getNome() + "\" com " + topAtual.getPontuacao() + " pts");
+        }
 
         System.out.println("\n[OK] Partida encerrada!");
-        System.out.println("     Jogadores da partida: " + p1.getNome() + " vs " + p2.getNome());
-        System.out.println("     Vencedor sorteado da partida: " + vencedor.getNome() + " (" + vencedor.getPontuacao() + " pts)");
+        System.out.println("     Competindo nesta partida: " + competidoresDaRodada);
+        System.out.println("     Jogador sorteado da fila: " + vencedor.getNome());
+        System.out.println("     Nova pontuacao: " + vencedor.getPontuacao() + " pts");
+        System.out.println("     Jogadores que seguem na fila para a proxima: " + fila.size());
     }
 
     // ================= RANKING =================
@@ -344,6 +343,83 @@ public class RankingService {
         });
 
         return maior[0] == Integer.MIN_VALUE ? 0 : maior[0];
+    }
+
+    private Player sortearJogadorDaFila() {
+        int total = fila.size();
+        if (total == 0) return null;
+
+        Player[] participantes = new Player[total];
+        for (int i = 0; i < total; i++) {
+            Player atual = fila.dequeue();
+            if (atual == null) {
+                for (int j = 0; j < i; j++) {
+                    fila.enqueue(participantes[j]);
+                }
+                return null;
+            }
+            participantes[i] = atual;
+        }
+
+        int sorteado = (int) (Math.random() * total);
+        Player vencedor = participantes[sorteado];
+
+        for (int i = 0; i < total; i++) {
+            fila.enqueue(participantes[i]);
+        }
+
+        return vencedor;
+    }
+
+    private String descreverFilaAtual() {
+        int total = fila.size();
+        if (total == 0) return "ninguem";
+
+        Player[] participantes = new Player[total];
+        StringBuilder nomes = new StringBuilder();
+
+        for (int i = 0; i < total; i++) {
+            Player atual = fila.dequeue();
+            if (atual == null) {
+                for (int j = 0; j < i; j++) {
+                    fila.enqueue(participantes[j]);
+                }
+                return "indisponivel";
+            }
+            participantes[i] = atual;
+            if (i > 0) {
+                nomes.append(" vs ");
+            }
+            nomes.append(atual.getNome());
+        }
+
+        for (int i = 0; i < total; i++) {
+            fila.enqueue(participantes[i]);
+        }
+
+        return nomes.toString();
+    }
+
+    private void removerDaFilaPorId(int id) {
+        int total = fila.size();
+
+        for (int i = 0; i < total; i++) {
+            Player atual = fila.dequeue();
+            if (atual != null && atual.getId() != id) {
+                fila.enqueue(atual);
+            }
+        }
+    }
+
+    private void limparFilaDeJogadoresRemovidos() {
+        int total = fila.size();
+
+        for (int i = 0; i < total; i++) {
+            Player atual = fila.dequeue();
+            if (atual != null && jogadores.containsKey(atual.getId())) {
+                fila.enqueue(atual);
+            }
+        }
     }
 
 }

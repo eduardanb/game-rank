@@ -13,7 +13,7 @@ public class Main {
         System.out.println("██║   ██║██╔══██║██║╚██╔╝██║██╔══╝      ██╔══██╗██╔══██║██║╚██╗██║██╔═██╗ ");
         System.out.println("╚██████╔╝██║  ██║██║ ╚═╝ ██║███████╗    ██║  ██║██║  ██║██║ ╚████║██║  ██╗");
         System.out.println(" ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝    ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝");
-        System.out.println("CARA OU COROA-------------------------------------------------------");
+        System.out.println("JOGO DE SORTE -------------------------------------------------------");
     }
 
     public static void main(String[] args) {
@@ -25,7 +25,7 @@ public class Main {
 
             System.out.println();
             mostrarBanner();
-            System.out.println("1 - Cadastrar jogador");
+            System.out.println("\n1 - Cadastrar jogador");
             System.out.println("2 - Buscar jogador");
             System.out.println("3 - Listar ranking");
             System.out.println("4 - Mostrar top jogador(es)");
