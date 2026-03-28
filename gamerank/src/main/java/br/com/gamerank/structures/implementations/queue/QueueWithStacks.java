@@ -86,6 +86,10 @@ public class QueueWithStacks<T> implements QueueInterface<T> {
 
     @Override
     public boolean isFull() {
-        return stackEntrada.isFull();
+        return size() >= capacity;
+    }
+
+    public int size() {
+        return stackEntrada.toArray().length + stackSaida.toArray().length;
     }
 }

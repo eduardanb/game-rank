@@ -8,6 +8,8 @@ import br.com.gamerank.structures.implementations.tree.AVLTree;
 
 public class RankingService {
 
+    private static final int JOGADORES_POR_PARTIDA = 2;
+
     private HashTableChaining<Integer, Player> jogadores;
     private QueueWithStacks<Player> fila;
     private MaxHeap<Player> heap;
@@ -15,7 +17,7 @@ public class RankingService {
 
     public RankingService() {
         jogadores = new HashTableChaining<>(100);
-        fila = new QueueWithStacks<>(100);
+        fila = new QueueWithStacks<>(JOGADORES_POR_PARTIDA);
         heap = new MaxHeap<>(100);
         avl = new AVLTree<>();
     }
@@ -120,7 +122,15 @@ public class RankingService {
 
         System.out.println("          -> Jogador \"" + p.getNome() + "\" encontrado!");
 
-        System.out.println("\n[PASSO 2] Verificando se jogador ja esta na fila...");
+        System.out.println("\n[PASSO 2] Verificando se a fila ja esta cheia...");
+        System.out.println("          -> Limite da fila: " + JOGADORES_POR_PARTIDA + " jogador(es)");
+
+        if (fila.isFull()) {
+            System.out.println("          -> Fila cheia! Operacao cancelada.");
+            return;
+        }
+
+        System.out.println("\n[PASSO 3] Verificando se jogador ja esta na fila...");
         System.out.println("          -> Fila: contains(" + p.getNome() + ")");
         System.out.println("          -> Percorrendo stackEntrada e stackSaida...");
 
@@ -131,7 +141,7 @@ public class RankingService {
 
         System.out.println("          -> Nao esta na fila. Pode entrar!");
 
-        System.out.println("\n[PASSO 3] Adicionando na fila...");
+        System.out.println("\n[PASSO 4] Adicionando na fila...");
         System.out.println("          -> Fila: enqueue(" + p.getNome() + ")");
         System.out.println("          -> stackEntrada.push(" + p.getNome() + ")");
         fila.enqueue(p);
@@ -141,14 +151,14 @@ public class RankingService {
     }
 
     public void iniciarPartida() {
-        System.out.println("\n[PASSO 1] Verificando se ha jogadores na fila...");
+        System.out.println("\n[PASSO 1] Verificando se a fila esta completa...");
 
-        if (fila.isEmpty()) {
-            System.out.println("          -> Fila vazia! Operacao cancelada.");
+        if (!fila.isFull()) {
+            System.out.println("          -> A partida so pode iniciar com " + JOGADORES_POR_PARTIDA + " jogadores na fila.");
             return;
         }
 
-        System.out.println("          -> Fila nao esta vazia. Iniciando...");
+        System.out.println("          -> Fila cheia. Iniciando partida...");
 
         System.out.println("\n[PASSO 2] Retirando primeiro jogador da fila...");
         System.out.println("          -> Fila: dequeue()");
@@ -161,7 +171,7 @@ public class RankingService {
         Player p2 = fila.dequeue();
 
         if (p2 == null) {
-            System.out.println("          -> Apenas 1 jogador na fila! Devolvendo jogador...");
+            System.out.println("          -> Erro interno: fila inconsistente. Devolvendo jogador...");
             fila.enqueue(p1);
             System.out.println("          -> \"" + p1.getNome() + "\" devolvido para a fila.");
             return;
@@ -169,15 +179,10 @@ public class RankingService {
 
         System.out.println("          -> Jogador 2: \"" + p2.getNome() + "\" retirado!");
 
-        System.out.println("\n[PASSO 4] Sorteando pontuacao entre todos os jogadores cadastrados...");
-        System.out.println("          -> Regra: a cada partida, 1 jogador cadastrado eh sorteado e recebe +10 pontos.");
+        System.out.println("\n[PASSO 4] Sorteando vencedor entre os jogadores da partida...");
+        System.out.println("          -> Regra: a cada partida, 1 dos 2 jogadores da fila recebe +10 pontos.");
 
-        Player vencedor = sortearJogadorCadastrado();
-
-        if (vencedor == null) {
-            System.out.println("          -> Nao ha jogadores cadastrados para pontuar.");
-            return;
-        }
+        Player vencedor = (Math.random() < 0.5) ? p1 : p2;
 
         System.out.println("          -> Jogador sorteado para pontuar: \"" + vencedor.getNome() + "\"");
 
@@ -199,7 +204,7 @@ public class RankingService {
 
         System.out.println("\n[OK] Partida encerrada!");
         System.out.println("     Jogadores da partida: " + p1.getNome() + " vs " + p2.getNome());
-        System.out.println("     Pontuado por sorteio geral: " + vencedor.getNome() + " (" + vencedor.getPontuacao() + " pts)");
+        System.out.println("     Vencedor sorteado da partida: " + vencedor.getNome() + " (" + vencedor.getPontuacao() + " pts)");
     }
 
     // ================= RANKING =================
@@ -341,15 +346,4 @@ public class RankingService {
         return maior[0] == Integer.MIN_VALUE ? 0 : maior[0];
     }
 
-    private Player sortearJogadorCadastrado() {
-        int total = jogadores.size();
-        if (total == 0) return null;
-
-        Player[] lista = new Player[total];
-        int[] idx = {0};
-        jogadores.forEach(p -> lista[idx[0]++] = p);
-
-        int sorteado = (int) (Math.random() * total);
-        return lista[sorteado];
-    }
 }
