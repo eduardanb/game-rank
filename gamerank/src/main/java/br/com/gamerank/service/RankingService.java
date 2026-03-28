@@ -53,7 +53,6 @@ public class RankingService {
 
         jogadores.remove(id);
         avl.remove(p);
-        // Heap não suporta remoção arbitrária — reconstruir do hash
         reconstruirHeap();
 
         System.out.println("Jogador removido: " + p.getNome());
@@ -66,6 +65,12 @@ public class RankingService {
 
         if (p == null) {
             System.out.println("Jogador não existe!");
+            return;
+        }
+
+        // Verifica se jogador já está na fila
+        if (fila.contains(p)) {
+            System.out.println(p.getNome() + " já está na fila!");
             return;
         }
 
@@ -84,7 +89,6 @@ public class RankingService {
 
         if (p2 == null) {
             System.out.println("Não há jogadores suficientes na fila!");
-            // devolve p1 pra fila
             fila.enqueue(p1);
             return;
         }
@@ -93,12 +97,10 @@ public class RankingService {
 
         Player vencedor = Math.random() > 0.5 ? p1 : p2;
 
-        // CORRIGIDO: remove da AVL antes de mudar pontuação, depois reinsere
         avl.remove(vencedor);
         vencedor.setPontuacao(vencedor.getPontuacao() + 10);
         avl.insert(vencedor);
 
-        // Heap: reconstruir para refletir nova pontuação
         reconstruirHeap();
 
         System.out.println("Vencedor: " + vencedor.getNome()
@@ -135,7 +137,6 @@ public class RankingService {
             return;
         }
 
-        // CORRIGIDO: remove antes de mudar, reinsere depois
         avl.remove(p);
         p.setPontuacao(pontos);
         avl.insert(p);
@@ -147,7 +148,6 @@ public class RankingService {
 
     // ================= AUXILIAR =================
 
-    // Reconstrói a heap do zero a partir do hash (necessário pois heap não remove arbitrariamente)
     private void reconstruirHeap() {
         heap = new MaxHeap<>(100);
         jogadores.forEach(p -> heap.insert(p));

@@ -20,8 +20,7 @@ public class StackLinkedList<T> implements StackInterface<T> {
         if (isFull()) {
             throw new StackOverflowException("Pilha cheia!");
         }
-
-        list.insert(elem); // insere no final
+        list.insert(elem);
     }
 
     @Override
@@ -29,10 +28,8 @@ public class StackLinkedList<T> implements StackInterface<T> {
         if (isEmpty()) {
             throw new StackUnderflowException("Pilha vazia!");
         }
-
         T[] array = list.toArray();
         T elemento = array[array.length - 1];
-
         list.remove(elemento);
         return elemento;
     }
@@ -40,7 +37,6 @@ public class StackLinkedList<T> implements StackInterface<T> {
     @Override
     public T top() {
         if (isEmpty()) return null;
-
         T[] array = list.toArray();
         return array[array.length - 1];
     }
@@ -53,5 +49,10 @@ public class StackLinkedList<T> implements StackInterface<T> {
     @Override
     public boolean isFull() {
         return list.size() == capacity;
+    }
+
+    @Override
+    public T[] toArray() {
+        return list.toArray();
     }
 }

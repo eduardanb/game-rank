@@ -1,0 +1,5 @@
+br\com\gamerank\structures\LinkedListTest.class
+br\com\gamerank\structures\StackTest.class
+br\com\gamerank\structures\HeapTest.class
+br\com\gamerank\structures\AVLTreeTest.class
+br\com\gamerank\structures\QueueTest.class

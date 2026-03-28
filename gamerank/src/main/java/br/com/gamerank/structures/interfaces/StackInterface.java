@@ -5,9 +5,10 @@ import br.com.gamerank.exceptions.StackUnderflowException;
 
 public interface StackInterface<T> {
 
-    public void push(T elem) throws StackOverflowException;
-    public T pop() throws StackUnderflowException;
-    public T top();
-    public boolean isEmpty();
-    public boolean isFull();
+    void push(T elem) throws StackOverflowException;
+    T pop() throws StackUnderflowException;
+    T top();
+    boolean isEmpty();
+    boolean isFull();
+    T[] toArray();
 }

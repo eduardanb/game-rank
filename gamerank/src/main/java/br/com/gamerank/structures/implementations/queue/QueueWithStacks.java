@@ -24,9 +24,7 @@ public class QueueWithStacks<T> implements QueueInterface<T> {
                 System.out.println("Fila cheia!");
                 return;
             }
-
             stackEntrada.push(element);
-
         } catch (StackOverflowException e) {
             System.out.println(e.getMessage());
         }
@@ -39,13 +37,10 @@ public class QueueWithStacks<T> implements QueueInterface<T> {
                 System.out.println("Fila vazia!");
                 return null;
             }
-
             if (stackSaida.isEmpty()) {
                 transferir();
             }
-
             return stackSaida.pop();
-
         } catch (StackUnderflowException e) {
             System.out.println(e.getMessage());
             return null;
@@ -58,16 +53,24 @@ public class QueueWithStacks<T> implements QueueInterface<T> {
     public T head() {
         try {
             if (isEmpty()) return null;
-
             if (stackSaida.isEmpty()) {
                 transferir();
             }
-
             return stackSaida.top();
-
         } catch (Exception e) {
             return null;
         }
+    }
+
+    // Verifica se um elemento já está na fila (nas duas pilhas)
+    public boolean contains(T element) {
+        for (T item : stackEntrada.toArray()) {
+            if (item.equals(element)) return true;
+        }
+        for (T item : stackSaida.toArray()) {
+            if (item.equals(element)) return true;
+        }
+        return false;
     }
 
     private void transferir() throws StackUnderflowException, StackOverflowException {
