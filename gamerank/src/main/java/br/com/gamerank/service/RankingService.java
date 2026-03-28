@@ -169,10 +169,17 @@ public class RankingService {
 
         System.out.println("          -> Jogador 2: \"" + p2.getNome() + "\" retirado!");
 
-        System.out.println("\n[PASSO 4] Sorteando vencedor...");
-        Player vencedor = Math.random() > 0.5 ? p1 : p2;
-        Player perdedor = vencedor == p1 ? p2 : p1;
-        System.out.println("          -> Vencedor sorteado: \"" + vencedor.getNome() + "\"");
+        System.out.println("\n[PASSO 4] Sorteando pontuacao entre todos os jogadores cadastrados...");
+        System.out.println("          -> Regra: a cada partida, 1 jogador cadastrado eh sorteado e recebe +10 pontos.");
+
+        Player vencedor = sortearJogadorCadastrado();
+
+        if (vencedor == null) {
+            System.out.println("          -> Nao ha jogadores cadastrados para pontuar.");
+            return;
+        }
+
+        System.out.println("          -> Jogador sorteado para pontuar: \"" + vencedor.getNome() + "\"");
 
         System.out.println("\n[PASSO 5] Atualizando pontuacao do vencedor...");
         System.out.println("          -> AVL Tree: remove(" + vencedor.getNome() + ", pts=" + vencedor.getPontuacao() + ")");
@@ -191,39 +198,63 @@ public class RankingService {
                 + heap.peek().getNome() + "\" com " + heap.peek().getPontuacao() + " pts");
 
         System.out.println("\n[OK] Partida encerrada!");
-        System.out.println("     Vencedor : " + vencedor.getNome() + " (" + vencedor.getPontuacao() + " pts)");
-        System.out.println("     Perdedor : " + perdedor.getNome() + " (" + perdedor.getPontuacao() + " pts)");
+        System.out.println("     Jogadores da partida: " + p1.getNome() + " vs " + p2.getNome());
+        System.out.println("     Pontuado por sorteio geral: " + vencedor.getNome() + " (" + vencedor.getPontuacao() + " pts)");
     }
 
     // ================= RANKING =================
 
     public void mostrarTopJogador() {
-        System.out.println("\n[PASSO 1] Consultando raiz da MaxHeap...");
-        System.out.println("          -> MaxHeap: peek() -> acessa heap[0] diretamente");
+        System.out.println("\n[PASSO 1] Verificando jogadores cadastrados...");
 
-        Player top = heap.peek();
-
-        if (top == null) {
-            System.out.println("          -> Heap vazia! Nenhum jogador cadastrado.");
+        if (jogadores.isEmpty()) {
+            System.out.println("          -> Nenhum jogador cadastrado.");
             return;
         }
 
-        System.out.println("          -> Raiz da heap encontrada em O(1)!");
-        System.out.println("\n[OK] Top jogador: " + top);
+        int maiorPontuacao = obterMaiorPontuacao();
+
+        if (maiorPontuacao == 0) {
+            System.out.println("          -> Todos os jogadores estao com pontuacao zerada.");
+        }
+
+        System.out.println("\n[PASSO 2] Listando top jogador(es)...");
+        System.out.println("          -> Maior pontuacao atual: " + maiorPontuacao);
+        System.out.println("\n=== Top jogador(es) ===");
+
+        int[] total = {0};
+        jogadores.forEach(p -> {
+            if (p.getPontuacao() == maiorPontuacao) {
+                total[0]++;
+                System.out.println(total[0] + "o - " + p);
+            }
+        });
+
+        System.out.println("======================");
     }
 
     public void listarRanking() {
         System.out.println("\n[PASSO 1] Verificando se a AVL Tree esta vazia...");
 
-        if (avl.isEmpty()) {
+        if (jogadores.isEmpty()) {
             System.out.println("          -> AVL vazia! Nenhum jogador cadastrado.");
             return;
+        }
+
+        if (avl.size() != jogadores.size()) {
+            System.out.println("          -> Tamanho da AVL inconsistente com total de jogadores.");
+            System.out.println("          -> Reconstruindo AVL para garantir todos no ranking...");
+            reconstruirAvl();
         }
 
         System.out.println("          -> AVL nao esta vazia. Iniciando percurso...");
         System.out.println("\n[PASSO 2] Realizando percurso in-order na AVL Tree...");
         System.out.println("          -> In-order: visita esquerda -> raiz -> direita");
         System.out.println("          -> Resultado: jogadores em ordem crescente de pontuacao\n");
+
+        if (todosComPontuacaoZero()) {
+            System.out.println("Todos os jogadores estao com pontuacao zerada.");
+        }
 
         System.out.println("=== Ranking ===");
         int[] pos = {1};
@@ -276,5 +307,49 @@ public class RankingService {
     private void reconstruirHeap() {
         heap = new MaxHeap<>(100);
         jogadores.forEach(p -> heap.insert(p));
+    }
+
+    private void reconstruirAvl() {
+        avl = new AVLTree<>();
+        jogadores.forEach(avl::insert);
+    }
+
+    private boolean todosComPontuacaoZero() {
+        if (jogadores.isEmpty()) return false;
+
+        boolean[] todosZero = {true};
+        jogadores.forEach(p -> {
+            if (p.getPontuacao() != 0) {
+                todosZero[0] = false;
+            }
+        });
+
+        return todosZero[0];
+    }
+
+    private int obterMaiorPontuacao() {
+        Player top = heap.peek();
+        if (top != null) return top.getPontuacao();
+
+        int[] maior = {Integer.MIN_VALUE};
+        jogadores.forEach(p -> {
+            if (p.getPontuacao() > maior[0]) {
+                maior[0] = p.getPontuacao();
+            }
+        });
+
+        return maior[0] == Integer.MIN_VALUE ? 0 : maior[0];
+    }
+
+    private Player sortearJogadorCadastrado() {
+        int total = jogadores.size();
+        if (total == 0) return null;
+
+        Player[] lista = new Player[total];
+        int[] idx = {0};
+        jogadores.forEach(p -> lista[idx[0]++] = p);
+
+        int sorteado = (int) (Math.random() * total);
+        return lista[sorteado];
     }
 }

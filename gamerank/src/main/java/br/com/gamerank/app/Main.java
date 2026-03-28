@@ -5,6 +5,17 @@ import br.com.gamerank.util.ConsoleUtils;
 
 public class Main {
 
+    private static void mostrarBanner() {
+        System.out.println("-------------------------------------------------------");
+        System.out.println(" ██████╗  █████╗ ███╗   ███╗███████╗    ██████╗  █████╗ ███╗   ██╗██╗  ██╗");
+        System.out.println("██╔════╝ ██╔══██╗████╗ ████║██╔════╝    ██╔══██╗██╔══██╗████╗  ██║██║ ██╔╝");
+        System.out.println("██║  ███╗███████║██╔████╔██║█████╗      ██████╔╝███████║██╔██╗ ██║█████╔╝ ");
+        System.out.println("██║   ██║██╔══██║██║╚██╔╝██║██╔══╝      ██╔══██╗██╔══██║██║╚██╗██║██╔═██╗ ");
+        System.out.println("╚██████╔╝██║  ██║██║ ╚═╝ ██║███████╗    ██║  ██║██║  ██║██║ ╚████║██║  ██╗");
+        System.out.println(" ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝    ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝");
+        System.out.println("-------------------------------------------------------");
+    }
+
     public static void main(String[] args) {
 
         RankingService service = new RankingService();
@@ -12,11 +23,12 @@ public class Main {
 
         while (opcao != 0) {
 
-            System.out.println("\n====== GAME RANK ======");
+            System.out.println();
+            mostrarBanner();
             System.out.println("1 - Cadastrar jogador");
             System.out.println("2 - Buscar jogador");
             System.out.println("3 - Listar ranking");
-            System.out.println("4 - Mostrar top jogador");
+            System.out.println("4 - Mostrar top jogador(es)");
             System.out.println("5 - Entrar na fila");
             System.out.println("6 - Iniciar partida");
             System.out.println("7 - Atualizar pontuação");

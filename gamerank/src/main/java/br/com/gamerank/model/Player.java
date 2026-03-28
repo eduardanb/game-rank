@@ -24,6 +24,10 @@ public class Player implements Comparable<Player> {
 
     @Override
     public int compareTo(Player outro) {
-        return Integer.compare(this.pontuacao, outro.pontuacao);
+        int porPontuacao = Integer.compare(this.pontuacao, outro.pontuacao);
+        if (porPontuacao != 0) return porPontuacao;
+
+        // Desempate por id para permitir jogadores com mesma pontuacao na AVL.
+        return Integer.compare(this.id, outro.id);
     }
 }
