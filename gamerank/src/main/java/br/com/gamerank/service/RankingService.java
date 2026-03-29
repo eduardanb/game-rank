@@ -25,7 +25,7 @@ public class RankingService {
     // ================= JOGADORES =================
 
     public void cadastrarJogador(int id, String nome) {
-        System.out.println("\n[PASSO 1] Verificando se jogador ja existe...");
+        System.out.println("\n1. Verificando se jogador ja existe...");
         System.out.println("          -> Hash Table: containsKey(" + id + ")");
 
         if (jogadores.containsKey(id)) {
@@ -37,31 +37,31 @@ public class RankingService {
 
         Player p = new Player(id, nome);
 
-        System.out.println("\n[PASSO 2] Inserindo na Hash Table...");
+        System.out.println("\n2. Inserindo na Hash Table...");
         System.out.println("          -> hash(" + id + ") = " + (id % 100) + " (bucket " + (id % 100) + ")");
         jogadores.put(id, p);
         System.out.println("          -> Jogador armazenado em Hash[" + (id % 100) + "]");
 
-        System.out.println("\n[PASSO 3] Inserindo na MaxHeap...");
+        System.out.println("\n3. Inserindo na MaxHeap...");
         System.out.println("          -> heap.insert(" + nome + ", pts=" + p.getPontuacao() + ")");
         heap.insert(p);
         System.out.println("          -> Subindo elemento ate posicao correta (sift up)");
         System.out.println("          -> Heap atualizada! Tamanho: " + heap.size());
 
-        System.out.println("\n[PASSO 4] Inserindo na AVL Tree...");
+        System.out.println("\n4. Inserindo na AVL Tree...");
         System.out.println("          -> avl.insert(" + nome + ", pts=" + p.getPontuacao() + ")");
         avl.insert(p);
         System.out.println("          -> Arvore rebalanceada se necessario");
         System.out.println("          -> AVL atualizada! Tamanho: " + avl.size());
 
-        System.out.println("\n[OK] Jogador \"" + nome + "\" cadastrado com sucesso!");
+        System.out.println("\n-> Jogador \"" + nome + "\" cadastrado com sucesso!");
     }
 
     public void buscarJogador(int id) {
-        System.out.println("\n[PASSO 1] Calculando bucket na Hash Table...");
+        System.out.println("\n1. Calculando bucket na Hash Table...");
         System.out.println("          -> hash(" + id + ") = " + (id % 100) + " (bucket " + (id % 100) + ")");
 
-        System.out.println("\n[PASSO 2] Percorrendo o encadeamento no bucket " + (id % 100) + "...");
+        System.out.println("\n2. Percorrendo o encadeamento no bucket " + (id % 100) + "...");
         System.out.println("          -> Hash Table: get(" + id + ")");
 
         Player p = jogadores.get(id);
@@ -70,12 +70,12 @@ public class RankingService {
             System.out.println("          -> Jogador nao encontrado no bucket!");
         } else {
             System.out.println("          -> Jogador encontrado!");
-            System.out.println("\n[OK] " + p);
+            System.out.println("\n-> " + p);
         }
     }
 
     public void removerJogador(int id) {
-        System.out.println("\n[PASSO 1] Buscando jogador na Hash Table...");
+        System.out.println("\n1. Buscando jogador na Hash Table...");
         System.out.println("          -> Hash Table: get(" + id + ")");
 
         Player p = jogadores.get(id);
@@ -87,34 +87,34 @@ public class RankingService {
 
         System.out.println("          -> Jogador \"" + p.getNome() + "\" encontrado!");
 
-        System.out.println("\n[PASSO 2] Removendo da Hash Table...");
+        System.out.println("\n2. Removendo da Hash Table...");
         System.out.println("          -> Hash Table: remove(" + id + ") do bucket " + (id % 100));
         jogadores.remove(id);
         System.out.println("          -> Removido da Hash Table!");
 
-        System.out.println("\n[PASSO 2.1] Removendo da fila de espera (se estiver)...");
+        System.out.println("\n2.1 Removendo da fila de espera (se estiver)...");
         removerDaFilaPorId(id);
         System.out.println("          -> Fila atualizada!");
 
-        System.out.println("\n[PASSO 3] Removendo da AVL Tree...");
+        System.out.println("\n3. Removendo da AVL Tree...");
         System.out.println("          -> AVL Tree: remove(" + p.getNome() + ", pts=" + p.getPontuacao() + ")");
         avl.remove(p);
         System.out.println("          -> Arvore rebalanceada apos remocao");
         System.out.println("          -> AVL atualizada! Tamanho: " + avl.size());
 
-        System.out.println("\n[PASSO 4] Reconstruindo a MaxHeap...");
+        System.out.println("\n4. Reconstruindo a MaxHeap...");
         System.out.println("          -> Heap nao suporta remocao arbitraria");
         System.out.println("          -> Percorrendo todos os jogadores da Hash Table...");
         reconstruirHeap();
         System.out.println("          -> Heap reconstruida! Tamanho: " + heap.size());
 
-        System.out.println("\n[OK] Jogador \"" + p.getNome() + "\" removido com sucesso!");
+        System.out.println("\n-> Jogador \"" + p.getNome() + "\" removido com sucesso!");
     }
 
     // ================= FILA =================
 
     public void entrarFila(int id) {
-        System.out.println("\n[PASSO 1] Buscando jogador na Hash Table...");
+        System.out.println("\n1. Buscando jogador na Hash Table...");
         System.out.println("          -> Hash Table: get(" + id + ")");
 
         Player p = jogadores.get(id);
@@ -126,14 +126,14 @@ public class RankingService {
 
         System.out.println("          -> Jogador \"" + p.getNome() + "\" encontrado!");
 
-        System.out.println("\n[PASSO 2] Verificando se a fila atingiu o limite tecnico...");
+        System.out.println("\n2. Verificando se a fila atingiu o limite tecnico...");
 
         if (fila.isFull()) {
             System.out.println("          -> Fila cheia! Operacao cancelada.");
             return;
         }
 
-        System.out.println("\n[PASSO 3] Verificando se jogador ja esta na fila...");
+        System.out.println("\n3. Verificando se jogador ja esta na fila...");
         System.out.println("          -> Fila: contains(" + p.getNome() + ")");
         System.out.println("          -> Percorrendo stackEntrada e stackSaida...");
 
@@ -144,17 +144,17 @@ public class RankingService {
 
         System.out.println("          -> Nao esta na fila. Pode entrar!");
 
-        System.out.println("\n[PASSO 4] Adicionando na fila...");
+        System.out.println("\n4. Adicionando na fila...");
         System.out.println("          -> Fila: enqueue(" + p.getNome() + ")");
         System.out.println("          -> stackEntrada.push(" + p.getNome() + ")");
         fila.enqueue(p);
         System.out.println("          -> Jogador empilhado em stackEntrada!");
 
-        System.out.println("\n[OK] \"" + p.getNome() + "\" entrou na fila de espera!");
+        System.out.println("\n-> \"" + p.getNome() + "\" entrou na fila de espera!");
     }
 
     public void iniciarPartida() {
-        System.out.println("\n[PASSO 1] Verificando se ha jogadores na fila...");
+        System.out.println("\n1. Verificando se ha jogadores na fila...");
 
         limparFilaDeJogadoresRemovidos();
 
@@ -168,7 +168,7 @@ public class RankingService {
         System.out.println("          -> Jogadores na fila: " + fila.size());
         System.out.println("          -> Iniciando sorteio da partida...");
 
-        System.out.println("\n[PASSO 2] Sorteando 1 jogador dentre todos da fila...");
+        System.out.println("\n2. Sorteando 1 jogador dentre todos da fila...");
         Player vencedor = sortearJogadorDaFila();
 
         if (vencedor == null) {
@@ -178,7 +178,7 @@ public class RankingService {
 
         System.out.println("          -> Jogador sorteado para pontuar: \"" + vencedor.getNome() + "\"");
 
-        System.out.println("\n[PASSO 3] Atualizando pontuacao do vencedor...");
+        System.out.println("\n3. Atualizando pontuacao do vencedor...");
         System.out.println("          -> AVL Tree: remove(" + vencedor.getNome() + ", pts=" + vencedor.getPontuacao() + ")");
         avl.remove(vencedor);
         System.out.println("          -> Pontuacao anterior: " + vencedor.getPontuacao() + " pts");
@@ -188,7 +188,7 @@ public class RankingService {
         avl.insert(vencedor);
         System.out.println("          -> Arvore rebalanceada!");
 
-        System.out.println("\n[PASSO 4] Reconstruindo a MaxHeap...");
+        System.out.println("\n4. Reconstruindo a MaxHeap...");
         System.out.println("          -> Pontuacao alterada, heap precisa ser atualizada");
         reconstruirHeap();
         Player topAtual = heap.peek();
@@ -199,7 +199,7 @@ public class RankingService {
                     + topAtual.getNome() + "\" com " + topAtual.getPontuacao() + " pts");
         }
 
-        System.out.println("\n[OK] Partida encerrada!");
+        System.out.println("\n-> Partida encerrada!");
         System.out.println("     Competindo nesta partida: " + competidoresDaRodada);
         System.out.println("     Jogador sorteado da fila: " + vencedor.getNome());
         System.out.println("     Nova pontuacao: " + vencedor.getPontuacao() + " pts");
@@ -209,7 +209,7 @@ public class RankingService {
     // ================= RANKING =================
 
     public void mostrarTopJogador() {
-        System.out.println("\n[PASSO 1] Verificando jogadores cadastrados...");
+        System.out.println("\n1. Verificando jogadores cadastrados...");
 
         if (jogadores.isEmpty()) {
             System.out.println("          -> Nenhum jogador cadastrado.");
@@ -222,7 +222,7 @@ public class RankingService {
             System.out.println("          -> Todos os jogadores estao com pontuacao zerada.");
         }
 
-        System.out.println("\n[PASSO 2] Listando top jogador(es)...");
+        System.out.println("\n2. Listando top jogador(es)...");
         System.out.println("          -> Maior pontuacao atual: " + maiorPontuacao);
         System.out.println("\n=== Top jogador(es) ===");
 
@@ -238,7 +238,7 @@ public class RankingService {
     }
 
     public void listarRanking() {
-        System.out.println("\n[PASSO 1] Verificando se a AVL Tree esta vazia...");
+        System.out.println("\n1. Verificando se a AVL Tree esta vazia...");
 
         if (jogadores.isEmpty()) {
             System.out.println("          -> AVL vazia! Nenhum jogador cadastrado.");
@@ -252,7 +252,7 @@ public class RankingService {
         }
 
         System.out.println("          -> AVL nao esta vazia. Iniciando percurso...");
-        System.out.println("\n[PASSO 2] Realizando percurso in-order na AVL Tree...");
+        System.out.println("\n2. Realizando percurso in-order na AVL Tree...");
         System.out.println("          -> In-order: visita esquerda -> raiz -> direita");
         System.out.println("          -> Resultado: jogadores em ordem crescente de pontuacao\n");
 
@@ -269,7 +269,7 @@ public class RankingService {
     }
 
     public void atualizarPontuacao(int id, int pontos) {
-        System.out.println("\n[PASSO 1] Buscando jogador na Hash Table...");
+        System.out.println("\n1. Buscando jogador na Hash Table...");
         System.out.println("          -> Hash Table: get(" + id + ")");
 
         Player p = jogadores.get(id);
@@ -281,29 +281,29 @@ public class RankingService {
 
         System.out.println("          -> Jogador \"" + p.getNome() + "\" encontrado!");
 
-        System.out.println("\n[PASSO 2] Removendo da AVL Tree antes de alterar pontuacao...");
+        System.out.println("\n2. Removendo da AVL Tree antes de alterar pontuacao...");
         System.out.println("          -> AVL Tree: remove(" + p.getNome() + ", pts=" + p.getPontuacao() + ")");
         System.out.println("          -> Necessario pois a AVL ordena por pontuacao!");
         avl.remove(p);
         System.out.println("          -> Removido e arvore rebalanceada!");
 
-        System.out.println("\n[PASSO 3] Atualizando pontuacao...");
+        System.out.println("\n3. Atualizando pontuacao...");
         System.out.println("          -> Pontuacao anterior: " + p.getPontuacao() + " pts");
         p.setPontuacao(pontos);
         System.out.println("          -> Nova pontuacao: " + pontos + " pts");
 
-        System.out.println("\n[PASSO 4] Reinserindo na AVL Tree com nova pontuacao...");
+        System.out.println("\n4. Reinserindo na AVL Tree com nova pontuacao...");
         System.out.println("          -> AVL Tree: insert(" + p.getNome() + ", pts=" + pontos + ")");
         avl.insert(p);
         System.out.println("          -> Arvore rebalanceada!");
 
-        System.out.println("\n[PASSO 5] Reconstruindo a MaxHeap...");
+        System.out.println("\n5. Reconstruindo a MaxHeap...");
         System.out.println("          -> Pontuacao alterada, heap precisa ser atualizada");
         reconstruirHeap();
         System.out.println("          -> Heap reconstruida! Top atual: \""
                 + heap.peek().getNome() + "\" com " + heap.peek().getPontuacao() + " pts");
 
-        System.out.println("\n[OK] Pontuacao de \"" + p.getNome() + "\" atualizada para " + pontos + " pts!");
+        System.out.println("\n-> Pontuacao de \"" + p.getNome() + "\" atualizada para " + pontos + " pts!");
     }
 
     // ================= AUXILIAR =================
@@ -388,7 +388,7 @@ public class RankingService {
             }
             participantes[i] = atual;
             if (i > 0) {
-                nomes.append(" vs ");
+                nomes.append(" x ");
             }
             nomes.append(atual.getNome());
         }
